@@ -1,0 +1,82 @@
+server:
+  port: 8802
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: product_route
+          uri: lb://com-niubility-client-controller
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
+
+        - id: admin_route
+          uri: lb://renren-fast
+          predicates:
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}
+
+
+  #http://localhost:8802/api/product/category/list
+
+    sentinel:
+      transport:
+        dashboard: localhost:8089
+      datasource:
+        ds2:
+          nacos:
+            server-addr: 192.168.2.124:8848
+            data-id: sentinel-a
+            group-id: sentinel_group
+            data-type: json
+            rule-type: flow
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    #虚拟host 可以不设置,使用server默认host
+    virtual-host: /
+    #消息确认配置项
+    #确认消息已发送到交换机(Exchange)
+    publisher-confirms: true
+    #确认消息已发送到队列(Queue)
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+feign:
+#  httpclient:
+#    enabled: true   # #让feign底层使用HttpClient去调用
+#    max-connections: 200 #  最大连接数
+#    max-connections-per-route: 50 #  为每个url请求设置最大连接数
+  client:
+    config:
+      dafult:
+        connectTimeout: 5000
+        readTime: 5000
+      product-center:            #     要调用服务的名称
+        loggerLevel: FULL   # 日志级别
+  sentinel:
+    enabled: true   # 打开 Sentinel 对 Feign 的支持 这样@FeignClient的fallback 才会生效
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+logging:
+  config: classpath:logback-spring.xml
+  #path: D:/data/mylog
+  #file: myLog.log
+#  level:
+#    root: info
+#    org.springframework.cloud.sleuth: debug
+#    org.springframework.cloud.openfeign: debug

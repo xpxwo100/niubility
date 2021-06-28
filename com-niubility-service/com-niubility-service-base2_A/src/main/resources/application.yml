@@ -1,0 +1,61 @@
+server:
+  port: 9006
+spring:
+  application:
+    name: com-niubility-service-base2
+  datasource:
+    username: root
+    password: 111111
+    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+    driver-class-name: com.mysql.jdbc.Driver
+    filters : stat,wall
+    dbcp2:
+      max-idle: 5
+      initial-size: 5     #初始化提供的连接数
+      max-wait-millis: 200   #等待连接获取的最大超时时间
+      max-total: 5
+  redis:
+    port: 11111
+    host: localhost
+    password:
+    lettuce:
+      pool:
+        # 连接池最大连接数（使用负值表示没有限制） 默认 8
+        max-active: 8
+        # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认 -1
+        max-wait: -1ms
+        # 连接池中的最大空闲连接 默认 8
+        max-idle: 8
+        # 连接池中的最小空闲连接 默认 0
+        min-idle: 0
+    timeout: 10000ms
+  session:
+    store-type: redis
+eureka:
+  client:
+    serviceUrl:
+      registerWithEureka: true
+      fetchRegistry: true
+      serviceUrl:
+       defaultZone: http://localhost:8761/eureka/
+feign:
+  hystrix:
+    enabled: true
+
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+  type-aliases-package: combookservice.service.entity
+
+#showSql
+logging:
+  level:
+    com:
+      example:
+        mapper: debug
+nettyrpc:
+  port: 9901
+  ip: localhost
+zookeeper:
+  ip: localhost
+  port: 2181
+  balance: hash  # 配置负载均衡方式 hash/random

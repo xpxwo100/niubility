@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="combookproductcontroller.dao.TestDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="combookproductcontroller.entity.TestEntity" id="testMap">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="code" column="code"/>
+        <result property="age" column="age"/>
+        <result property="neirong" column="neirong"/>
+        <result property="test2id" column="test2id"/>
+    </resultMap>
+    <select id="selectMapList" resultType="hashmap" parameterType="hashmap">
+        SELECT
+            *from
+            test
+                LIMIT #{page,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+    </select>
+</mapper>

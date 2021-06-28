@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="combookservice.service.mapper.UserMapper">
+    <cache eviction="FIFO" readOnly="true" flushInterval="30000" size="1024" />
+    <!--
+    二级缓存.三方缓存方式 <cache type="org.mybatis.caches.memcached.MemcachedCache"/>
+    -->
+    <resultMap id="result" type="hashmap">
+    </resultMap>
+
+    <select id="selectMapList" parameterType="hashmap" resultType="hashmap" flushCache="true" useCache="false">
+		${sql}
+	</select>
+
+    <insert id="insetLog" parameterType="String">
+
+        INSERT INTO syslog ( content) VALUES ( #{s,jdbcType=VARCHAR});
+
+    </insert>
+</mapper>

@@ -1,0 +1,121 @@
+server:
+  port: 9002
+  tomcat:
+    uri-encoding: UTF-8
+    #最大工作线程数，默认200, 1核2g内存为200，线程数经验值200； 4核8g内存，线程数经验值800
+    #操作系统做线程之间的切换调度是有系统开销的，所以不是越多越好。
+    max-threads: 1000
+    #最大可被连接数，默认10000
+    max-connections: 20000
+    # 等待队列长度，默认100
+    accept-count: 1000
+    # 最小工作空闲线程数，默认10, 适当增大一些，以便应对突然增长的访问量
+    min-spare-threads: 100
+spring:
+  cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8089
+      datasource:
+        ds2:
+          nacos:
+            server-addr: 192.168.2.124:8848
+            data-id: sentinel-a
+            group-id: sentinel_group
+            data-type: json
+            rule-type: flow
+      eager: true
+  datasource:
+    username: root
+    password: 111111
+    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2B8&autoReconnect=true&failOverReadOnly=false
+    driver-class-name: com.mysql.jdbc.Driver
+    filters: stat,wall
+    dbcp2:
+      max-idle: 5
+      initial-size: 5     #初始化提供的连接数
+      max-wait-millis: 200   #等待连接获取的最大超时时间
+      max-total: 5
+  redis:
+    timeout: 6000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+    #sentinel哨兵配置
+
+
+    sentinel:
+      master: mymaster
+      nodes: 127.0.0.1:26379,127.0.0.1:26380,127.0.0.1:26381
+    session:
+      store-type: redis
+  thymeleaf:
+    # 配置thymeleaf修改页面不重启生效
+    cache: false
+    encoding: utf-8
+    mode: LEGACYHTML5
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    #虚拟host 可以不设置,使用server默认host
+    virtual-host: /
+    #消息确认配置项
+    #确认消息已发送到交换机(Exchange)
+    publisher-confirms: true
+    #确认消息已发送到队列(Queue)
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+
+nettyrpc:
+  ip: localhost
+  port: 9898
+zookeeper:
+  ip: localhost
+  port: 2181
+  balance: hash  # 配置负载均衡方式 hash/random
+#mybatis
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: combookproductcontroller.entity
+  global-config:
+    #数据库相关配置
+    db-config:
+      #主键类型  AUTO:"数据库ID自增", INPUT:"用户输入ID", ID_WORKER:"全局唯一ID (数字类型唯一ID)", UUID:"全局唯一ID UUID";
+      id-type: AUTO
+      logic-delete-value: -1
+      logic-not-delete-value: 0
+    banner: false
+  #原生配置
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    call-setters-on-nulls: true
+    jdbc-type-for-null: 'null'
+logging:
+  config: classpath:logback-spring.xml
+  #path: D:/data/mylog
+  #file: myLog.log
+#  level:
+#    root: info
+#    org.springframework.cloud.sleuth: debug
+#    org.springframework.cloud.openfeign: debug
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}

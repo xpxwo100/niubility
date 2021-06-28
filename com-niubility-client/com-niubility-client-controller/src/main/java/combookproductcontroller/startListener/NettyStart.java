@@ -1,0 +1,41 @@
+package combookproductcontroller.startListener;
+
+import boot.nettyClient.NettyRpcUtil;
+import boot.nettyRpcModel.IBootStart;
+import boot.nettyRpcModel.RpcService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
+/**
+ * Created by lzhijun on 2019/9/29.
+ */
+@Component
+public class NettyStart implements IBootStart {
+    /*@Autowired
+    public NettyRpcServer nettyRpcSnerver;*/
+ /*   @Autowired
+    public ServiceRegistryAndDiscovery zookeeperDiscovery;*/
+    @Autowired
+    public DiscoveryClient discoveryClient;
+    @Override
+    public void doBootStart(ContextRefreshedEvent contextRefreshedEvent) {
+    }
+
+    @Override
+    public void doRegisteredStart(ContextRefreshedEvent contextRefreshedEvent) {
+        ApplicationContext applicationContext = contextRefreshedEvent.getApplicationContext();
+        Map<String, Object> serviceBeanMap = applicationContext.getBeansWithAnnotation(RpcService.class);
+        /*for (Map.Entry<String, Object> entry : serviceBeanMap.entrySet()) {
+            nettyRpcSnerver.registerService(entry.getKey(), entry.getValue());
+        }
+        nettyRpcSnerver.registerZookeeperNode();
+        nettyRpcSnerver.start();*/
+        //NettyRpcUtil.setZookeeperDiscovery(zookeeperDiscovery);
+        NettyRpcUtil.setDiscoveryClient(discoveryClient);
+    }
+}

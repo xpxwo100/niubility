@@ -1,0 +1,163 @@
+server:
+  port: 9003
+spring:
+  datasource:
+    username: root
+    password: 111111
+    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2B8&autoReconnect=true&failOverReadOnly=false
+    driver-class-name: com.mysql.jdbc.Driver
+    filters : stat,wall
+    dbcp2:
+      max-idle: 5
+      initial-size: 5     #初始化提供的连接数
+      max-wait-millis: 200   #等待连接获取的最大超时时间
+      max-total: 5
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    #虚拟host 可以不设置,使用server默认host
+    virtual-host: /
+    #消息确认配置项
+    #确认消息已发送到交换机(Exchange)
+    publisher-confirms: true
+    #确认消息已发送到队列(Queue)
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: manual
+#  redis:
+#    port: 11111
+#    host: localhost
+#    password:
+#    lettuce:
+#      pool:
+#        # 连接池最大连接数（使用负值表示没有限制） 默认 8  1234qwerASDF~
+#        max-active: 8
+#        # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认 -1
+#        max-wait: -1ms
+#        # 连接池中的最大空闲连接 默认 8
+#        max-idle: 8
+#        # 连接池中的最小空闲连接 默认 0
+#        min-idle: 0
+#    timeout: 10000ms
+#  redis:
+#    sentinel:
+#      master: mymaster
+#      nodes: 127.0.0.1:26379,127.0.0.1:26380,127.0.0.1:26381
+  redis:
+    timeout: 6000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+    #sentinel哨兵配置
+    sentinel:
+      master: mymaster
+      nodes: 127.0.0.1:26379,127.0.0.1:26380,127.0.0.1:26381
+
+
+  session:
+    store-type: redis
+feign:
+  #  httpclient:
+  #    enabled: true   # #让feign底层使用HttpClient去调用
+  #    max-connections: 200 #  最大连接数
+  #    max-connections-per-route: 50 #  为每个url请求设置最大连接数
+  client:
+    config:
+      dafult:
+        connectTimeout: 5000
+        readTime: 5000
+      product-center:            #     要调用服务的名称
+        loggerLevel: FULL   # 日志级别
+  sentinel:
+    enabled: true   # 打开 Sentinel 对 Feign 的支持 这样@FeignClient的fallback 才会生效
+
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+  type-aliases-package: combookservice.service.entity
+
+#showSql
+#logging:
+#  level:
+#    com:
+#      example:
+#        mapper: debug
+nettyrpc:
+  port: 9013
+  ip: localhost
+zookeeper:
+  ip: localhost
+  port: 2181
+  balance: hash  # 配置负载均衡方式 hash/random
+#sharding:
+#  jdbc:
+#    dataSource:
+#      names: ds0,ds1
+#      # 配置主库
+#      ds0: #org.apache.tomcat.jdbc.pool.DataSource
+#        type: com.alibaba.druid.pool.DruidDataSource
+#        driverClassName: com.mysql.jdbc.Driver
+#        url: jdbc:mysql://localhost:3306/order1?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2B8&autoReconnect=true&failOverReadOnly=false
+#        username: root
+#        password: 111111
+#        #最大连接数
+#        maxPoolSize: 20
+#      ds1:
+#        type: com.alibaba.druid.pool.DruidDataSource
+#        driverClassName: com.mysql.jdbc.Driver
+#        url: jdbc:mysql://localhost:3306/order2?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2B8&autoReconnect=true&failOverReadOnly=false
+#        username: root
+#        password: 111111
+#        maxPoolSize: 20
+#    config:
+#      sharding:
+#        props:
+#          sql.show: true
+#        tables:
+#          t_user:  #t_user表
+#            key-generator-column-name: id  #主键
+#            actual-data-nodes: ds${0..1}.t_user${0..1}  #数据节点
+#            database-strategy:  #分库策略
+#              inline:
+#                sharding-column: city_id
+#                algorithm-expression: ds${city_id % 2}
+#            table-strategy:  #分表策略
+#              inline:
+#                shardingColumn: sex
+#                algorithm-expression: t_user${sex % 2}
+#          t_address:
+#            key-generator-column-name: id
+#            actual-data-nodes: ds${0..1}.t_address
+#            database-strategy:
+#              inline:
+#                shardingColumn: lit
+#                algorithm-expression: ds${lit % 2}
+#    props:
+#      sql: # 开启SQL显示，默认值: false，注意：仅配置读写分离时不会打印日志！！！
+#        show: true
+
+# 普鲁米修斯
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+logging:
+  config: classpath:logback-spring.xml
+  #path: D:/data/mylog
+  #file: myLog.log
+#  level:
+#    root: info
+#    org.springframework.cloud.sleuth: debug
+#    org.springframework.cloud.openfeign: debug

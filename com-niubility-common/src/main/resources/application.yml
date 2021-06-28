@@ -1,0 +1,9 @@
+#server:
+#  port: 9100
+#spring:
+#  application:
+#    name: common
+#zookeeper:
+#  ip: localhost
+#  port: 2181
+#  balance: hash  # 配置负载均衡方式 hash/random
