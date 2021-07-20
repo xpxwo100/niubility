@@ -15,11 +15,11 @@ spring:
   cloud:
     sentinel:
       transport:
-        dashboard: localhost:8089
+        dashboard: 192.168.56.101:8858
       datasource:
         ds2:
           nacos:
-            server-addr: 192.168.2.124:8848
+            server-addr: 192.168.56.101:8848
             data-id: sentinel-a
             group-id: sentinel_group
             data-type: json
@@ -49,7 +49,7 @@ spring:
 
     sentinel:
       master: mymaster
-      nodes: 127.0.0.1:26379,127.0.0.1:26380,127.0.0.1:26381
+      nodes: 192.168.56.101:26379,192.168.56.101:26380,192.168.56.101:26381
     session:
       store-type: redis
   thymeleaf:
@@ -58,10 +58,10 @@ spring:
     encoding: utf-8
     mode: LEGACYHTML5
   rabbitmq:
-    host: 127.0.0.1
+    host: 192.168.56.101
     port: 5672
-    username: guest
-    password: guest
+    username: admin
+    password: admin
     #虚拟host 可以不设置,使用server默认host
     virtual-host: /
     #消息确认配置项

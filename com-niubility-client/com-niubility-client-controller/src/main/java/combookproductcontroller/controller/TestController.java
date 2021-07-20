@@ -15,7 +15,6 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,8 +40,8 @@ public class TestController {
     private TestDao testDao;
     @Autowired
     private RedisUtils redisUtils;
-    @Value("${fuck}")
-    String fuck;
+  /*  @Value("${fuck}")
+    String fuck;*/
     @Autowired
     SchedualServiceHi schedualServiceHi;
     @Autowired
@@ -69,7 +68,6 @@ public class TestController {
             lock.unlock();
         }
 
-        log.info(fuck);
         int limit = 10;
         int page = 1;
         if (params != null && params.size() > 0) {

@@ -34,7 +34,7 @@
     </appender>
     <!-- logstash设置 -->
     <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>127.0.0.1:4567</destination> //logstash ip和暴露的端口，我目前理解就是通过这个地址把日志发送过去
+        <destination>192.168.56.101:4567</destination> //logstash ip和暴露的端口，我目前理解就是通过这个地址把日志发送过去
         <encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder" >
            <!-- <providers>
                 <timestamp>

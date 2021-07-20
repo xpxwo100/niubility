@@ -15,23 +15,22 @@ public class MesSend {
 
 
     @Autowired
-    //@PostConstruct
     public  void initMesSend(RabbitTemplate rabbitTemplate){
         MesSend.rabbitTemplate = rabbitTemplate;
     }
 
     //发送消息
     public static void sendMsg(TestM t) {
-        /*if (rabbitTemplate == null) {
-            synchronized (MesSend.class) {
-                if (rabbitTemplate == null) {
-                    rabbitTemplate = (RabbitTemplate) SpringContextUtil.getBean("rabbitTemplate");
-                }
-            }
-        }*/
         log.info("rabbitTemplate:"+rabbitTemplate.toString());
         CorrelationData correlationId = new CorrelationData(UUID.randomUUID().toString());
         t.code = correlationId.getId();
-        rabbitTemplate.convertAndSend("xpx", "xpx.a", t, correlationId);
+        try {
+            rabbitTemplate.convertAndSend("xpx", "xpx.a", t, correlationId);
+            //记录数据库
+            //
+        }catch (Exception e){
+            //记录数据库
+            //
+        }
     }
 }

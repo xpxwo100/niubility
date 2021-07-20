@@ -7,14 +7,17 @@ import boot.nettyRpcModel.RpcThreadPool;
 import boot.util.TestM;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import combookproductcontroller.interfaces.SchedualServiceHi;
 import combookproductcontroller.util.MesSend;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -23,7 +26,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
-
+@Api(value = "desc of class")
 @RestController
 public class HiController {
     @Autowired
@@ -33,7 +36,7 @@ public class HiController {
     public String home(@RequestParam(value = "name", defaultValue = "forezp") String name) {
         return schedualServiceHi.sayHiFromClientOne(name);
     }
-
+    @ApiOperation(value = "desc of method", notes = "")
     @RequestMapping("/hi2")
     public Object linkBaseService(@RequestParam(value = "name", defaultValue = "forezp") String name) {
         Object sda = schedualServiceHi.linkBaseService(name);
@@ -282,7 +285,7 @@ public class HiController {
     private DiscoveryClient discoveryClient;  //拉取所有的服务信息
 
 
-    @GetMapping
+   /* @GetMapping
     @ResponseBody
     //@HystrixCommand(fallbackMethod = "testFallback")  //通过此注解使得此方法熔断后执行熔断方法
     @HystrixCommand(fallbackMethod = "testFallback", threadPoolProperties = {
@@ -292,7 +295,7 @@ public class HiController {
     }, commandProperties = {
             @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "8000")
     })
-   /* public String test5(@RequestParam("id") String id){
+   *//* public String test5(@RequestParam("id") String id){
 
         //可能会有多个同名服务，故使用list
         List<ServiceInstance> instances = discoveryClient.getInstances("com-niubility-service-base");
@@ -300,15 +303,15 @@ public class HiController {
         return this.restTemplate.getForObject("http://"+instance.getHost()+":"+ instance.getPort() +"/test/" + id,String.class);
 //        return this.restTemplate.getForObject("http://localhost:8079/test/"+id , String.class);
 
-    }*/
+    }*//*
 
-    /**
+    *//**
      * 熔断之后执行的方法
      * @param id
      * @return
-     */
+     *//*
     public String testFallback(String id) {
         return "熔断--服务正忙，请求稍后再试！";
 
-    }
+    }*/
 }
