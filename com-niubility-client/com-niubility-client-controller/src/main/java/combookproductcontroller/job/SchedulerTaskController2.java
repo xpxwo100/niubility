@@ -11,10 +11,25 @@ import java.util.Date;
 @Component
 public class SchedulerTaskController2 {
     private static final SimpleDateFormat dateFormat=new SimpleDateFormat("HH:mm:ss");
-    @Scheduled(fixedRate = 6000)
-    @Async("threadPoolTaskExecutor")
+    //@Scheduled(fixedRate = 6000)
+    //@Async
     public void currentTime(){
         log.info("中文:现在时间"+dateFormat.format(new Date()));
+    }
+
+    @Async
+    public void currentTime2(){
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        log.info("中文222222222:现在时间"+dateFormat.format(new Date()));
+    }
+
+    @Async
+    public void currentTime3(){
+        log.info("中文33333333:现在时间"+dateFormat.format(new Date()));
     }
 
 }
