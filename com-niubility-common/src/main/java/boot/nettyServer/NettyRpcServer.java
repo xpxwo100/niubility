@@ -56,7 +56,6 @@ public class NettyRpcServer implements RpcServer {
             MetricsHandler metricsHandler = new MetricsHandler();
             //业务线程池
             UnorderedThreadPoolEventExecutor business = new UnorderedThreadPoolEventExecutor(16, new DefaultThreadFactory("business"));
-
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workGroup);
             b.channel(NioServerSocketChannel.class);
@@ -102,7 +101,7 @@ public class NettyRpcServer implements RpcServer {
                     //pipeline.addLast("handler", new ServerHandler(nettyRecvInitializeTask));
                 }
             });
-            ChannelFuture channelFuture = b.bind(port).sync();
+            ChannelFuture channelFuture = b.bind(port);
             channelFuture.channel().closeFuture().sync();
             System.out.println("服务端启动");
         } catch (Exception e) {
