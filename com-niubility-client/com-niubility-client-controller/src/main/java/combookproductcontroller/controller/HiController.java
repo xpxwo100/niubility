@@ -5,23 +5,31 @@ import boot.nettyRpcModel.AppRunTimeException;
 import boot.nettyRpcModel.ObjectDto;
 import boot.nettyRpcModel.RpcThreadPool;
 import boot.util.TestM;
+import boot.util.Usual;
+import com.aspose.cells.Cells;
+import com.aspose.cells.PdfSaveOptions;
+import com.aspose.cells.Workbook;
+import com.aspose.cells.Worksheet;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import combookproductcontroller.interfaces.SchedualServiceHi;
 import combookproductcontroller.util.MesSend;
+import combookproductcontroller.util.aspose.AsposeUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -277,8 +285,157 @@ public class HiController {
 
     @ResponseBody
     @RequestMapping(value = "/test2")
-    public Object test2(HttpServletRequest request) throws InterruptedException {
-        return null;
+    public Object test2(HttpServletRequest request) throws InterruptedException, IllegalAccessException {
+        File directory = new File("com-niubility-client-controller/src/main/resources");
+        try {
+            String reportPath = directory.getCanonicalPath();
+            AsposeUtil cellsUtil = new AsposeUtil(this.getClass().getResourceAsStream("/fileTem/printTemeplate.xlsx"));
+            Workbook workBook = cellsUtil.getWorkBook();
+            Worksheet mWorksheet = workBook.getWorksheets().get(0);
+            Cells cells = mWorksheet.getCells();
+            String fileNameHead = cells.get(0, 0).getStringValue();
+            System.out.println(fileNameHead);
+            List<HashMap<String,Object>> detailList = new ArrayList<>();
+            for (int i=0;i<10;i++){
+                HashMap<String, Object> objectObjectHashMap = new HashMap<>();
+                objectObjectHashMap.put("purNo",6666666);
+                detailList.add(objectObjectHashMap);
+            }
+
+            for (int i = 0; i < cells.getMaxDataRow() + 1; i++){
+                for (int j = 0; j < cells.getMaxDataColumn() + 1; j++){
+                    Object obj = cells.getCell(i, j).getValue();
+                    if (obj != null) {
+                        String mark  = obj.toString();
+                        System.out.println(mark);
+                    }
+                }
+            }
+
+
+            List<HashMap<String,Object>> detailList2 = new ArrayList<>();
+
+            HashMap<String, Object> objectObjectHashMap = new HashMap<>();
+            objectObjectHashMap.put("realmoney",32323);
+            detailList2.add(objectObjectHashMap);
+            Map<String, Object> headMap = new HashMap<>();
+            headMap.put("MainMap",detailList2);
+
+            cellsUtil.setDataSource(headMap);
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("bodyMap", detailList);
+            //map.put("MainMap", new HashMap<>().put("realmoney",32323));
+            map.put("$code", "yabfuhfuohfuiohhoia");
+            cellsUtil.setDataSource(map);
+            //保存为pdf格式
+            //表格生成前执行公式计算
+            workBook.calculateFormula(true);
+
+            PdfSaveOptions saveOpt = new PdfSaveOptions();
+            saveOpt.setOnePagePerSheet(false);
+            saveOpt.setAllColumnsInOnePagePerSheet(true);
+            workBook.save("D:/ttttttttttttttt.pdf",saveOpt);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        return "asdadasddddddddd";
+    }
+
+    @RequestMapping(value = "/exportData", method = { RequestMethod.POST })
+    @ResponseBody
+    public void exportExcel
+            (
+                    @RequestParam String purNo,
+                    @RequestParam String storeInOutProDateStart,
+                    @RequestParam String storeInOutProDateEnd,
+                    @RequestParam String createDateStart,
+                    @RequestParam String createDateEnd,
+                    @RequestParam String pCreateDateStart,
+                    @RequestParam String pCreateDateEnd,
+                    HttpServletRequest request, HttpServletResponse response
+            ) throws Exception{
+        request.setCharacterEncoding(Usual.mUTF8Name);
+        response.setCharacterEncoding(Usual.mUTF8Name);
+        response.setContentType(Usual.mContentTypeBase);
+        response.setBufferSize(32768);
+
+        HttpSession session = request.getSession();
+        // 获取语言
+        Locale locale = (Locale) session.getAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME);
+        // 模板路径
+        String templateSuffix = ".xlsx";
+        String exportSuffix = ".xlsx";
+        String templateName = "printTemeplate"+templateSuffix;
+        String templatePath = "";
+        String exportName = "入库单明细表";
+        exportName = new String(Usual.toBytes(exportName), "ISO-8859-1")+exportSuffix;
+        response.setHeader("Content-Disposition", "attachment;filename=" + exportName);
+
+        Map<String,Object> paramMap = new HashMap<>();
+        if(!Usual.isNullOrEmpty(purNo)){
+            paramMap.put("purNo",purNo);
+        }
+        if(!Usual.isNullOrEmpty(storeInOutProDateStart)){
+            paramMap.put("storeInOutProDateStart", storeInOutProDateStart);
+        }
+        if(!Usual.isNullOrEmpty(storeInOutProDateEnd)){
+            paramMap.put("storeInOutProDateEnd", storeInOutProDateEnd);
+        }
+        if(!Usual.isNullOrEmpty(createDateStart)){
+            paramMap.put("createDateStart", createDateStart);
+        }
+        if(!Usual.isNullOrEmpty(createDateEnd)){
+            paramMap.put("createDateEnd", createDateEnd);
+        }
+        if(!Usual.isNullOrEmpty(pCreateDateStart)){
+            paramMap.put("pCreateDateStart", pCreateDateStart);
+        }
+        if(!Usual.isNullOrEmpty(pCreateDateEnd)){
+            paramMap.put("pCreateDateEnd", pCreateDateEnd);
+        }
+
+        try {
+            Map<String, Object> dataMap = null;
+            exportExcell(templatePath, dataMap, response);
+        } catch (AppRunTimeException e) {
+            throw e;
+        } catch (Exception e) {
+        }
+    }
+
+    /**
+     * excel数据匹配
+     * @param templatePath
+     * @param dataMap
+     * @param response
+     * @throws Exception
+     */
+    private void exportExcell(String templatePath, Map<String, Object> dataMap, HttpServletResponse response) throws Exception{
+        //加载模板，填充数据
+
+        AsposeUtil cellsUtil = new AsposeUtil(  this.getClass().getResourceAsStream(templatePath));
+        Workbook workbook = cellsUtil.getWorkBook();
+        cellsUtil.setDataSource(dataMap);
+        cellsUtil.setWorkBook(workbook);
+
+        //生成报表到HTTP Response流
+        OutputStream outputStream = null;
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=" + response.getCharacterEncoding());
+        try {
+            outputStream = response.getOutputStream();
+            cellsUtil.sendReport(outputStream);// 输出文件
+        }
+        finally {
+            if (outputStream != null) {
+                outputStream.flush();
+                outputStream.close();
+            }
+        }
     }
 
     @Autowired
