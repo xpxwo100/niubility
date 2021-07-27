@@ -5,9 +5,15 @@ import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.springframework.http.*;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import javax.inject.Singleton;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 
@@ -221,4 +227,18 @@ public class XmlUtils {
             System.out.println("======获取子节点-end======");
         }
     }
+    public static ResultVO sendPostRequest(String url, MultiValueMap<String, String> params){
+        RestTemplate client = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        HttpMethod method = HttpMethod.POST;
+        // 以表单的方式提交
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        //将请求头部和参数合成一个请求
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params, headers);
+        //执行HTTP请求，将返回的结构使用ResultVO类格式化
+        ResponseEntity<ResultVO> response = client.exchange(url, method, requestEntity, ResultVO.class);
+
+        return response.getBody();
+    }
+
 }
