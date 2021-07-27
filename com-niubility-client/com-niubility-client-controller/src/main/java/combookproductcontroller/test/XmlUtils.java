@@ -1,5 +1,13 @@
 package combookproductcontroller.test;
 
+import boot.util.Usual;
+import com.alibaba.fastjson.util.Base64;
+import com.aspose.cells.PictureCollection;
+import com.aspose.cells.Workbook;
+import com.aspose.cells.Worksheet;
+import combookproductcontroller.util.aspose.AsposeUtil;
+import combookproductcontroller.util.aspose.PathUtil;
+import net.coobird.thumbnailator.Thumbnails;
 import org.dom4j.DocumentException;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
@@ -9,11 +17,10 @@ import org.springframework.http.*;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.imageio.ImageIO;
 import javax.inject.Singleton;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.List;
 
 
@@ -78,7 +85,6 @@ public class XmlUtils {
     /**
      * 读取XML
      *
-     * @param filename
      * @return
      */
  /*   public static List<Map> readXml(String filename){
@@ -237,8 +243,78 @@ public class XmlUtils {
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params, headers);
         //执行HTTP请求，将返回的结构使用ResultVO类格式化
         ResponseEntity<ResultVO> response = client.exchange(url, method, requestEntity, ResultVO.class);
-
         return response.getBody();
     }
 
+    public void  setImgForPdf() throws Exception {
+        AsposeUtil cellsUtil = new AsposeUtil(this.getClass().getResourceAsStream("/fileTem/printTemeplate.xlsx"));
+        Workbook workBook = cellsUtil.getWorkBook();
+        Worksheet sheet = workBook.getWorksheets().get(0);
+        PictureCollection pictures = sheet.getPictures();
+
+        ByteArrayOutputStream imageSignatureStream = new ByteArrayOutputStream();
+        BufferedImage imageSignature = null;
+
+        OutputStream out = null;
+        byte[] b = null;
+        try
+        {
+            String str = "";
+            //Base64解码
+            b = new Base64().decodeFast(str);
+            for(int i=0;i<b.length;++i)
+            {
+                if(b[i]<0)
+                {//调整异常数据
+                    b[i]+=256;
+                }
+            }
+            //生成图片
+            PathUtil mPathUtil=new PathUtil();
+            String mWebPath=mPathUtil.getWebRoot()+"signature.png"; //获取当前根目录
+            out = new FileOutputStream(mWebPath);
+            out.write(b);
+            out.flush();
+            out.close();
+            File f = new File(mWebPath);
+            imageSignature = ImageIO.read(f);
+            /* 原始图像的宽度和高度 */
+				/*	int width = imageSignature.getWidth();
+					int height = imageSignature.getHeight();
+					//压缩计算
+					float resizeTimes = 0.4f;  这个参数是要转化成的倍数,如果是1就是转化成1倍
+                    if(height > 700 || width > 700){
+                    	 resizeTimes = 0.2f;
+					}
+					 调整后的图片的宽度和高度
+					int toWidth = (int) (width * resizeTimes);
+					int toHeight = (int) (height * resizeTimes);*/
+            /* 新生成结果图片 */
+					/*BufferedImage result = new BufferedImage(toWidth, toHeight,BufferedImage.TYPE_INT_RGB);
+					Graphics2D g2d = result.createGraphics();
+					result = g2d.getDeviceConfiguration().createCompatibleImage(toWidth,toHeight,Transparency.TRANSLUCENT);
+					g2d.dispose();
+	                g2d = result.createGraphics();
+					Image image = imageSignature.getScaledInstance(toWidth, toHeight,
+							Image.SCALE_AREA_AVERAGING);
+					g2d.drawImage(image, 0, 0, null);
+	                g2d.dispose(); */
+            imageSignature =  Thumbnails.of(f).size(200,200).rotate(-90).asBufferedImage();
+            //imageSignature = rotateImg(result, -90);
+            f.delete();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            out.close();
+        }finally{
+            b = Usual.mEmptyBytes;
+        }
+
+
+        ImageIO.write(imageSignature, "png", imageSignatureStream);
+        byte[] picDataFoot = imageSignatureStream.toByteArray();
+        InputStream imageSignStream = new ByteArrayInputStream(picDataFoot);
+        pictures.add(1, 1, imageSignStream);
+        picDataFoot = Usual.mEmptyBytes;//清空byte数组
+    }
 }
