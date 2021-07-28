@@ -20,15 +20,17 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -286,6 +288,9 @@ public class HiController {
     @ResponseBody
     @RequestMapping(value = "/test2")
     public Object test2(HttpServletRequest request) throws InterruptedException, IllegalAccessException {
+        String pjtPath = request.getSession().getServletContext().getRealPath("/fileTem");
+        String path = System.getProperty("user.dir");
+        System.out.println("路径:"+pjtPath);
         File directory = new File("com-niubility-client-controller/src/main/resources");
         try {
             String reportPath = directory.getCanonicalPath();
@@ -345,6 +350,116 @@ public class HiController {
 
         return "asdadasddddddddd";
     }
+
+    /**
+     * 订单导出excel数据匹配
+     * @param templatePath
+     * @param dataMap
+     * @param response
+     * @throws Exception
+     */
+    private void purExportExcell(String templatePath, Map<String, Object> dataMap, HttpServletResponse response) throws Exception{
+        //AsposeUtil.LicAspose();
+        //加载模板，填充数据
+        AsposeUtil cellsUtil = new AsposeUtil(templatePath);
+        Workbook workbook = cellsUtil.getWorkBook();
+		/*Worksheet mWorksheet = workbook.getWorksheets().get(0);
+		Cells cells = mWorksheet.getCells();*/
+
+        //设置数据源
+        cellsUtil.setDataSource(dataMap);
+        cellsUtil.setWorkBook(workbook);
+
+        //生成报表到HTTP Response流
+        OutputStream outputStream = null;
+        response.setContentType("application/vnd.ms-excel;charset=" + response.getCharacterEncoding());
+
+        String exportName = "采购订单";
+        String exportSuffix = ".xlsx";
+        exportName = new String(Usual.toBytes(exportName), "ISO-8859-1")+exportSuffix;
+        response.setHeader("Content-Disposition", "attachment;filename=" + exportName);
+
+        try {
+            outputStream = response.getOutputStream();
+            cellsUtil.sendReport(outputStream);// 输出文件
+        }
+        finally {
+            if (outputStream != null) {
+                outputStream.flush();
+                outputStream.close();
+            }
+        }
+    }
+
+
+    @RequestMapping(value="/download")
+    public String downloads(HttpServletResponse response ,HttpServletRequest request) throws Exception{
+        //要下载的图片地址
+        String  path = request.getServletContext().getRealPath("/upload");
+        String  fileName = "基础语法.jpg";
+
+        //1、设置response 响应头
+        response.reset(); //设置页面不缓存,清空buffer
+        response.setCharacterEncoding("UTF-8"); //字符编码
+        response.setContentType("multipart/form-data"); //二进制传输数据
+        //设置响应头
+        response.setHeader("Content-Disposition",
+                "attachment;fileName="+ URLEncoder.encode(fileName, "UTF-8"));
+
+        File file = new File(path,fileName);
+        //2、 读取文件--输入流
+        InputStream input=new FileInputStream(file);
+        //3、 写出文件--输出流
+        OutputStream out = response.getOutputStream();
+
+        byte[] buff =new byte[1024];
+        int index=0;
+        //4、执行 写出操作
+        while((index= input.read(buff))!= -1){
+            out.write(buff, 0, index);
+            out.flush();
+        }
+        out.close();
+        input.close();
+        return null;
+    }
+
+    @ResponseBody
+    @GetMapping("/download")
+    public String downloadImage(@RequestParam(value = "imageName",required = false) String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        String name = filename.split("/")[1];
+        File newfile = new File("D:/uploaded" + File.separator+name);
+        if (!newfile.exists()) {
+            throw new IOException(name + "文件不存在");
+        }
+        response.setContentType("application/force-download");
+        response.addHeader("Content-Disposition", "attachment;fileName=" + name);
+
+        byte[] buffer = new byte[1024];
+        FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        OutputStream os = null;
+        try {
+            fis = new FileInputStream(newfile);
+            bis = new BufferedInputStream(fis);
+            os = response.getOutputStream();
+
+            int i = bis.read(buffer);
+            while (i != -1) {
+                os.write(buffer, 0, i);
+                i = bis.read(buffer);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            os.close();
+            bis.close();
+            fis.close();
+        }
+        return "index";
+    }
+
 
     @RequestMapping(value = "/exportData", method = { RequestMethod.POST })
     @ResponseBody
@@ -471,4 +586,64 @@ public class HiController {
         return "熔断--服务正忙，请求稍后再试！";
 
     }*/
+
+    /**
+     * 文件上传的实现方法
+     * @author xct
+     * @date 2020-11-20 16:41
+     * @param file
+     * @param image
+     * @param title
+     * @return java.lang.String
+     */
+    public String uploadFile(MultipartFile file, MultipartFile image, String title) throws Exception {
+        String os = System.getProperty("os.name");
+        File imagePath;  //封面图片存放地址
+        File fileRealPath;   //文件存放地址
+        if (os.toLowerCase().startsWith("win")) {  //windows系统
+            String path = System.getProperty("user.dir");  //获取项目相对路径
+            fileRealPath = new File(path+"/src//main/resources/file");
+            imagePath = new File(path+"/src//main/resources/static/images");
+        }else{//linux系统
+            //获取根目录
+            //如果是在本地windows环境下，目录为项目的target\classes下
+            //如果是linux环境下，目录为jar包同级目录
+            File rootPath = new File(ResourceUtils.getURL("classpath:").getPath());
+            if(!rootPath.exists()){
+                rootPath = new File("");
+            }
+            fileRealPath = new File(rootPath.getAbsolutePath()+"/file/");
+            imagePath = new File(rootPath.getAbsolutePath()+"/images");
+        }
+        //判断文件夹是否存在
+        if(!fileRealPath.exists()){
+            //不存在，创建
+            fileRealPath.mkdirs();
+        }
+        if(!imagePath.exists()){
+            //不存在，创建
+            imagePath.mkdirs();
+        }
+        //获取文件名称
+        String fileName = file.getOriginalFilename();
+        String imageName = image.getOriginalFilename();
+        //创建文件存放地址
+        File resultPath = new File(fileRealPath+"/"+fileName);
+        if (resultPath.exists()){
+            return "false！";
+        }
+        //创建图片存放地址
+        File imageResultPath = new File(imagePath+"/"+imageName);
+        if(imageResultPath.exists()){
+            return "false！";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        file.transferTo(resultPath);
+        image.transferTo(imageResultPath);
+        //fileMapper.insert(title, sdf.format(new Date()), imageName, fileName);
+        System.out.println("absolutePath:"+fileRealPath.getCanonicalPath());
+        System.out.println("resultPath:"+resultPath.getCanonicalPath());
+        System.out.println("imageResultPath:"+imageResultPath.getCanonicalPath());
+        return "true！";
+    }
 }
