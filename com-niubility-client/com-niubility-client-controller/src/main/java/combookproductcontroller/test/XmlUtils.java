@@ -397,7 +397,7 @@ public class XmlUtils {
                     throw e; //抛出异常
                 }
             }
-
+            batchSqlSession.close();
             String a = "64121,64413,64535,64620,64634,65028,65334,65489";
             String[] s = a.split(",");
             for (String id : s) {
