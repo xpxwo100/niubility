@@ -364,10 +364,12 @@ public class XmlUtils {
 
     /**
      * 批量插入2
-     *
+     *@Transactional会对runtime异常进行自动回滚（异常没有被catch掉）
+     * 如果try-catch，要想进行事务回滚，则throw抛出个异常，事务则会执行。否则事务将不会进行回滚
+     * @Transactional(rollbackFor = Exception.class)，可以指定回滚异常，异常会对抛出指定异常时做事务回滚
      * @param list 要导入的数据集合
      */
-    public void batch(SqlSession batchSqlSession, TestDao arResidualShoesCostsMapperBatch, List<Map<String, Object>> list) {
+    public void batch(SqlSession batchSqlSession, TestDao arResidualShoesCostsMapperBatch, List<Map<String, Object>> list)  {
         int batchCount = 5000;// 每批commit的个数
         if (list != null) {
             int index = 0;
