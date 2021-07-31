@@ -19,4 +19,5 @@ import java.util.Map;
 public interface TestDao extends BaseMapper<TestEntity> {
     public List<HashMap<String,Object>>  selectMapList(Map<String,Object> sql);
 
+    void insertToXD(Map<String, Object> mMap);
 }

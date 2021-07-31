@@ -18,4 +18,42 @@
             test
                 LIMIT #{page,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
     </select>
+
+    <insert  id="insertToXD" parameterType="map" >
+        INSERT INTO ObBasePriceXD
+        (
+            basePriceID,
+            rowNo,
+            project,
+            netWeight,
+            grossWeight,
+            lossWeight,
+            materialPrice,
+            materialCost,
+            productionCost,
+            price,
+            remark,
+            creatorID,
+            creatorName,
+            createDate
+        )
+        VALUES
+        (
+            #{basePriceID,jdbcType=INTEGER},
+            #{rowNo,jdbcType=VARCHAR},
+            #{project,jdbcType=DATE},
+            #{netWeight,jdbcType=INTEGER},
+            #{grossWeight,jdbcType=INTEGER},
+            #{lossWeight,jdbcType=VARCHAR},
+            #{materialPrice,jdbcType=VARCHAR},
+            #{materialCost,jdbcType=VARCHAR},
+            #{productionCost,jdbcType=VARCHAR},
+            #{price,jdbcType=VARCHAR},
+            #{remark,jdbcType=INTEGER},
+            #{creatorID,jdbcType=INTEGER},
+            #{creatorName,jdbcType=VARCHAR},
+            getdate()
+        )
+    </insert>
+
 </mapper>

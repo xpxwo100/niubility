@@ -5,14 +5,19 @@ import com.alibaba.fastjson.util.Base64;
 import com.aspose.cells.PictureCollection;
 import com.aspose.cells.Workbook;
 import com.aspose.cells.Worksheet;
+import combookproductcontroller.dao.TestDao;
 import combookproductcontroller.util.aspose.AsposeUtil;
 import combookproductcontroller.util.aspose.PathUtil;
 import net.coobird.thumbnailator.Thumbnails;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
 import org.dom4j.DocumentException;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -22,6 +27,7 @@ import javax.inject.Singleton;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.List;
+import java.util.Map;
 
 
 @Singleton
@@ -65,7 +71,6 @@ public class XmlUtils {
     }*/
 
 
-
     public static void main(String[] args) throws IOException, DocumentException, JDOMException {
 
       /*  String xmlStr = "<xml><AppId></AppId><CreateTime>1413192605</CreateTime><InfoType></InfoType><ComponentVerifyTicket></ComponentVerifyTicket></xml>";
@@ -82,6 +87,7 @@ public class XmlUtils {
         //readXmlforXml("D:\\test.xml");
         jdom();
     }
+
     /**
      * 读取XML
      *
@@ -205,9 +211,7 @@ public class XmlUtils {
         System.out.println(dataMap);
         return dataMap;
     }*/
-
-
-    public static void  jdom() throws IOException, JDOMException {
+    public static void jdom() throws IOException, JDOMException {
         //1.创建SAXBuilder对象
         SAXBuilder saxBuilder = new SAXBuilder();
         //2.创建输入流
@@ -219,21 +223,22 @@ public class XmlUtils {
         //5.获取子节点
         List<Element> children = rootElement.getChildren();
         for (Element child : children) {
-            System.out.println("通过rollno获取属性值:"+child.getAttribute("Relation"));
+            System.out.println("通过rollno获取属性值:" + child.getAttribute("Relation"));
             List<Attribute> attributes = child.getAttributes();
             //打印属性
             for (Attribute attr : attributes) {
-                System.out.println(attr.getName()+":"+attr.getValue());
+                System.out.println(attr.getName() + ":" + attr.getValue());
             }
             List<Element> childrenList = child.getChildren();
             System.out.println("======获取子节点-start======");
             for (Element o : childrenList) {
-                System.out.println("节点名:"+o.getName()+"---"+"节点值:"+o.getValue());
+                System.out.println("节点名:" + o.getName() + "---" + "节点值:" + o.getValue());
             }
             System.out.println("======获取子节点-end======");
         }
     }
-    public static ResultVO sendPostRequest(String url, MultiValueMap<String, String> params){
+
+    public static ResultVO sendPostRequest(String url, MultiValueMap<String, String> params) {
         RestTemplate client = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         HttpMethod method = HttpMethod.POST;
@@ -246,7 +251,7 @@ public class XmlUtils {
         return response.getBody();
     }
 
-    public void  setImgForPdf() throws Exception {
+    public void setImgForPdf() throws Exception {
         AsposeUtil cellsUtil = new AsposeUtil(this.getClass().getResourceAsStream("/fileTem/printTemeplate.xlsx"));
         Workbook workBook = cellsUtil.getWorkBook();
         Worksheet sheet = workBook.getWorksheets().get(0);
@@ -257,21 +262,18 @@ public class XmlUtils {
 
         OutputStream out = null;
         byte[] b = null;
-        try
-        {
+        try {
             String str = "";
             //Base64解码
             b = new Base64().decodeFast(str);
-            for(int i=0;i<b.length;++i)
-            {
-                if(b[i]<0)
-                {//调整异常数据
-                    b[i]+=256;
+            for (int i = 0; i < b.length; ++i) {
+                if (b[i] < 0) {//调整异常数据
+                    b[i] += 256;
                 }
             }
             //生成图片
-            PathUtil mPathUtil=new PathUtil();
-            String mWebPath=mPathUtil.getWebRoot()+"signature.png"; //获取当前根目录
+            PathUtil mPathUtil = new PathUtil();
+            String mWebPath = mPathUtil.getWebRoot() + "signature.png"; //获取当前根目录
             out = new FileOutputStream(mWebPath);
             out.write(b);
             out.flush();
@@ -299,14 +301,13 @@ public class XmlUtils {
 							Image.SCALE_AREA_AVERAGING);
 					g2d.drawImage(image, 0, 0, null);
 	                g2d.dispose(); */
-            imageSignature =  Thumbnails.of(f).size(200,200).rotate(-90).asBufferedImage();
+            imageSignature = Thumbnails.of(f).size(200, 200).rotate(-90).asBufferedImage();
             //imageSignature = rotateImg(result, -90);
             f.delete();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             out.close();
-        }finally{
+        } finally {
             b = Usual.mEmptyBytes;
         }
 
@@ -316,5 +317,90 @@ public class XmlUtils {
         InputStream imageSignStream = new ByteArrayInputStream(picDataFoot);
         pictures.add(1, 1, imageSignStream);
         picDataFoot = Usual.mEmptyBytes;//清空byte数组
+    }
+
+    /**
+     * 批量插入
+     */
+    @Autowired
+    SqlSessionTemplate sqlSessionTemplate;
+
+    public boolean insertCrossEvaluation(List<Object> members)
+            throws Exception {
+        // TODO Auto-generated method stub
+        int result = 1;
+        SqlSession batchSqlSession = null;
+        try {
+            batchSqlSession = sqlSessionTemplate
+                    .getSqlSessionFactory()
+                    .openSession(ExecutorType.BATCH, false);// 获取批量方式的sqlsession
+            TestDao testDao = batchSqlSession.getMapper(TestDao.class);
+            int batchCount = 1000;// 每批commit的个数
+            int batchLastIndex = batchCount;// 每批最后一个的下标
+            for (int index = 0; index < members.size(); ) {
+                if (batchLastIndex >= members.size()) {
+                    batchLastIndex = members.size();
+                    result = result * batchSqlSession.insert("MutualEvaluationMapper.insertCrossEvaluation", members.subList(index, batchLastIndex));
+                    batchSqlSession.commit();
+                    batchSqlSession.clearCache();
+                    System.out.println("index:" + index + " batchLastIndex:" + batchLastIndex);
+                    break;// 数据插入完毕，退出循环
+                } else {
+                    result = result * batchSqlSession.insert("MutualEvaluationMapper.insertCrossEvaluation", members.subList(index, batchLastIndex));
+                    batchSqlSession.commit();
+                    batchSqlSession.clearCache();
+                    System.out.println("index:" + index + " batchLastIndex:" + batchLastIndex);
+                    index = batchLastIndex;// 设置下一批下标
+                    batchLastIndex = index + (batchCount - 1);
+                }
+            }
+            batchSqlSession.commit();
+            batchSqlSession.clearCache();
+        } finally {
+            batchSqlSession.close();
+        }
+        return true;
+    }
+
+    /**
+     * 批量插入2
+     *
+     * @param list 要导入的数据集合
+     */
+    public void batch(SqlSession batchSqlSession, TestDao arResidualShoesCostsMapperBatch, List<Map<String, Object>> list) {
+        int batchCount = 5000;// 每批commit的个数
+        if (list != null) {
+            int index = 0;
+            for (int i = 0; i < list.size(); i++) {
+                ++index;
+                Map<String, Object> mMap = list.get(i);
+                arResidualShoesCostsMapperBatch.insertToXD(mMap);
+                if (index % batchCount == 0) {
+                    try {
+                        batchSqlSession.commit(true);
+                        batchSqlSession.clearCache();
+                    } catch (Exception e) {
+                        batchSqlSession.rollback(true);
+                        throw e;
+                    }
+                }
+            }
+            // 最后一次末尾提交
+            if (index % batchCount != 0) {
+                try {
+                    batchSqlSession.commit(true);
+                    batchSqlSession.clearCache();
+                } catch (Exception e) {
+                    batchSqlSession.rollback(true);
+                    throw e; //抛出异常
+                }
+            }
+
+            String a = "64121,64413,64535,64620,64634,65028,65334,65489";
+            String[] s = a.split(",");
+            for (String id : s) {
+                int idInt = Usual.f_getInteger(id);
+            }
+        }
     }
 }
