@@ -374,7 +374,7 @@ public class XmlUtils {
             for (int i = 0; i < list.size(); i++) {
                 ++index;
                 Map<String, Object> mMap = list.get(i);
-                arResidualShoesCostsMapperBatch.insertToXD(mMap);
+                arResidualShoesCostsMapperBatch.insertSysLog(mMap);
                 if (index % batchCount == 0) {
                     try {
                         batchSqlSession.commit(true);

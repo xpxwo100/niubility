@@ -19,40 +19,20 @@
                 LIMIT #{page,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
     </select>
 
-    <insert  id="insertToXD" parameterType="map" >
-        INSERT INTO ObBasePriceXD
+    <insert  id="insertSysLog" parameterType="map" >
+        INSERT INTO sys_log
         (
-            basePriceID,
-            rowNo,
-            project,
-            netWeight,
-            grossWeight,
-            lossWeight,
-            materialPrice,
-            materialCost,
-            productionCost,
-            price,
-            remark,
-            creatorID,
-            creatorName,
-            createDate
+            `username`, `operation`, `method`, `params`, `time`, `ip`, `create_date`
         )
         VALUES
         (
-            #{basePriceID,jdbcType=INTEGER},
-            #{rowNo,jdbcType=VARCHAR},
-            #{project,jdbcType=DATE},
-            #{netWeight,jdbcType=INTEGER},
-            #{grossWeight,jdbcType=INTEGER},
-            #{lossWeight,jdbcType=VARCHAR},
-            #{materialPrice,jdbcType=VARCHAR},
-            #{materialCost,jdbcType=VARCHAR},
-            #{productionCost,jdbcType=VARCHAR},
-            #{price,jdbcType=VARCHAR},
-            #{remark,jdbcType=INTEGER},
-            #{creatorID,jdbcType=INTEGER},
-            #{creatorName,jdbcType=VARCHAR},
-            getdate()
+            #{username,jdbcType=VARCHAR},
+            #{operation,jdbcType=VARCHAR},
+            #{method,jdbcType=VARCHAR},
+            #{params,jdbcType=VARCHAR},
+            #{time},
+            #{ip,jdbcType=VARCHAR},
+            NOW()
         )
     </insert>
 
