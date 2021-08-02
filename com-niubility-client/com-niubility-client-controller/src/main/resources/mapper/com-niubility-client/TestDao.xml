@@ -19,21 +19,37 @@
                 LIMIT #{page,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
     </select>
 
-    <insert  id="insertSysLog" parameterType="map" >
+    <insert  id="insertSysLogList" parameterType="java.util.List" >
         INSERT INTO sys_log
         (
             `username`, `operation`, `method`, `params`, `time`, `ip`, `create_date`
         )
         VALUES
-        (
-            #{username,jdbcType=VARCHAR},
-            #{operation,jdbcType=VARCHAR},
-            #{method,jdbcType=VARCHAR},
-            #{params,jdbcType=VARCHAR},
-            #{time},
-            #{ip,jdbcType=VARCHAR},
-            NOW()
-        )
-    </insert>
+        <!--   (
+               #{username,jdbcType=VARCHAR},
+               #{operation,jdbcType=VARCHAR},
+               #{method,jdbcType=VARCHAR},
+               #{params,jdbcType=VARCHAR},
+               #{time},
+               #{ip,jdbcType=VARCHAR},
+               NOW()
+           )-->
+           <foreach collection="list" item="item" index="index" separator=",">
+               (
+                #{item.username,jdbcType=VARCHAR},
+               #{item.operation,jdbcType=VARCHAR},
+               #{item.method,jdbcType=VARCHAR},
+               #{item.params,jdbcType=VARCHAR},
+               #{item.time},
+               #{item.ip,jdbcType=VARCHAR},
+               NOW()
+               )
+           </foreach>
+       </insert>
+       <insert id="insertSysLog">
 
-</mapper>
+
+
+       </insert>
+
+   </mapper>

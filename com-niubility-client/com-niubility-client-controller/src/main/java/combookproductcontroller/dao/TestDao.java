@@ -20,4 +20,5 @@ public interface TestDao extends BaseMapper<TestEntity> {
     public List<HashMap<String,Object>>  selectMapList(Map<String,Object> sql);
 
     void insertSysLog(Map<String, Object> mMap);
+    int insertSysLogList(List<Map<String, Object>> list);
 }
