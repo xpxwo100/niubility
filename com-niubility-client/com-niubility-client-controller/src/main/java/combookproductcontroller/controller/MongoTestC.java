@@ -105,4 +105,6 @@ public class MongoTestC {
         System.out.println(curCode.get("curCode"));
     }
     //111111111111111111
+    //2222222222
+
 }
