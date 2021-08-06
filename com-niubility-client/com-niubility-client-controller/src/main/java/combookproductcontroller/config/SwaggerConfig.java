@@ -54,6 +54,8 @@ public class SwaggerConfig  extends WebMvcConfigurationSupport {
         // 解决swagger的js文件无法访问
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
+
+        registry.addResourceHandler("/temp-rainy/**").addResourceLocations("file:D://temp-rainy/");
     }
 
 }
