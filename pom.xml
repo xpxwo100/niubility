@@ -36,6 +36,8 @@
         <jackson.version>2.9.6</jackson.version>
         <fst.version>2.48</fst.version>
         <!-- <elasticsearch.version>6.7.0</elasticsearch.version>-->
+        <!-- Project revision -->
+        <revision>1.1.1.Hoxton.SR9</revision>
     </properties>
 
     <dependencies>
@@ -294,6 +296,14 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Spring Cloud Tencent Dependencies -->
+            <dependency>
+                <groupId>com.tencent.cloud</groupId>
+                <artifactId>spring-cloud-tencent-dependencies</artifactId>
+                <version>${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
