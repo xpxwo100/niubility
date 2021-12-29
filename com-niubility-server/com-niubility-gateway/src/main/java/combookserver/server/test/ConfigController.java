@@ -33,26 +33,6 @@ public class ConfigController {
                )*/
     @RequestMapping("/get")
     public String get() {
-        //String s = echoService.hi();
-        // Endpoint以杭州为例，其它Region请按实际情况填写。
-        /*String endpoint = "https://oss-cn-beijing.aliyuncs.com";
-
-// 阿里云主账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM账号进行API访问或日常运维，请登录RAM控制台创建RAM账号。
-        String accessKeyId = "LTAI5tPfPjZ2Rx89f1ZEbVL2";
-        String accessKeySecret = "rDWkSEC7iJGCWPnQaJolRgn7sz3CxI";
-        String bucketName = "xpxwo100";
-// <yourObjectName>从OSS下载文件时需要指定包含文件后缀在内的完整路径，例如abc/efg/123.jpg。
-        String objectName = "570_logo.png";
-
-
-// 创建OSSClient实例。
-        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
-
-// 下载Object到本地文件，并保存到指定的本地路径中。如果指定的本地文件存在会覆盖，不存在则新建。
-// 如果未指定本地路径，则下载后的文件默认保存到示例程序所属项目对应本地路径中。
-        ossClient.getObject(new GetObjectRequest(bucketName, objectName), new File("D:\\logs"));
-// 关闭OSSClient。
-        ossClient.shutdown();*/
         Test t = new Test();
         t.code = "sdaa";
         for (int d=0;d<100;d++){
