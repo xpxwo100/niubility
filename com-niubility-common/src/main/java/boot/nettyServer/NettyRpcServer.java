@@ -86,6 +86,8 @@ public class NettyRpcServer implements RpcServer {
 		    		 4) initialBytesToStrip = 4。//从解码帧中第一次去除的字节数*/
                     // 设置 0, 4, 0, 4 解码后的字节缓冲区丢弃了长度字段，仅仅包含消息体
                     pipeline.addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4)); //LengthFieldBasedFrameDecoder 自定义长度解码器解决TCP黏包问题。
+                    //心跳检测，1小时内没被调用就触发
+                    //在出现超时事件时会被触发，包括读空闲超时或者写空闲超时；
                     pipeline.addLast(new IdleStateHandler(1, 0, 0, TimeUnit.HOURS));
                     //通过LengthFieldPrepender可以将待发送消息的长度写入到ByteBuf的前面，用writeInt写入，编码后的消息组成为长度字段+原消息的方式。
                     pipeline.addLast(new LengthFieldPrepender(4));

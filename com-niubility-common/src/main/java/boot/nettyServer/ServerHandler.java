@@ -12,13 +12,12 @@ import io.netty.handler.timeout.IdleStateEvent;
  *
  */
 public class ServerHandler extends ChannelInboundHandlerAdapter {
-	private int loss_connect_time = 0;
+
+	private ThreadLocal threadLocal = new ThreadLocal();
 	private TaskExecutor executor;
-
-
-
 	public ServerHandler(TaskExecutor executor) {
 		this.executor = executor;
+
 	}
 
 	@Override
@@ -35,6 +34,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		super.channelActive(ctx);
+
 	}
 	/**
 	 * 异常处理
@@ -57,9 +57,15 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 		 if (evt instanceof IdleStateEvent) {
 	            IdleStateEvent event = (IdleStateEvent) evt;
 	            if (event.state() == IdleState.READER_IDLE) {
-	                loss_connect_time++;
+					int loss_connect_time = 0;
+	            	if(threadLocal.get() == null){
+						threadLocal.set(0);
+					}else{
+						loss_connect_time = (int) threadLocal.get();
+					}
+					threadLocal.set(loss_connect_time++);
 	                System.out.println("1小时 没有接收到客户端的信息了");
-	                if (loss_connect_time > 2) {
+	                if ((int)threadLocal.get() > 2) {
 	                    System.out.println("关闭这个不活跃的channel");
 	                    ctx.channel().close();
 	                }

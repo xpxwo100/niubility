@@ -87,7 +87,6 @@ public class NettyRecvInitializeTask  implements  TaskExecutor{
 			synchronized (NettyRpcServer.class) {
 				if (threadPoolExecutor == null) {
 					threadPoolExecutor = MoreExecutors.listeningDecorator((ThreadPoolExecutor) RpcThreadPool.getExecutor(16, -1));
-
 				}
 			}
 		}
