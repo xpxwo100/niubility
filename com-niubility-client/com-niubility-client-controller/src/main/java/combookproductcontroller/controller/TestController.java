@@ -3,9 +3,6 @@ package combookproductcontroller.controller;
 import boot.nettyClient.NettyRpcUtil;
 import boot.nettyRpcModel.ObjectDto;
 import boot.util.R;
-import com.aspose.cells.PageSetup;
-import com.aspose.cells.Workbook;
-import com.aspose.cells.Worksheet;
 import combookproductcontroller.dao.TestDao;
 import combookproductcontroller.entity.TestEntity;
 import combookproductcontroller.interfaces.SchedualServiceHi;
@@ -13,7 +10,6 @@ import combookproductcontroller.service.TestService;
 import combookproductcontroller.util.PageUtils;
 import combookproductcontroller.util.RedisUtils;
 import combookproductcontroller.util.RedissonUtil;
-import combookproductcontroller.util.aspose.AsposeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.junit.jupiter.api.Test;
@@ -169,7 +165,7 @@ public class TestController {
     }
 
 
-    protected HashMap<String,Object> printSpecialHandle(AsposeUtil cellsUtil, Cells cells, List<HashMap<String, Object>> detailList, Integer minPrintRow, int minPrintRowIndex, int paginationRowIndex, int paginationColumnIndex, boolean printOtherInfo)throws Exception {
+   /* protected HashMap<String,Object> printSpecialHandle(AsposeUtil cellsUtil, Cells cells, List<HashMap<String, Object>> detailList, Integer minPrintRow, int minPrintRowIndex, int paginationRowIndex, int paginationColumnIndex, boolean printOtherInfo)throws Exception {
         HashMap<String,Object> value = new HashMap<>();
         Workbook workbook = cellsUtil.getWorkBook();
         List<List<HashMap<String,Object>>> rowLists = new ArrayList<>();//有分页的每页List
@@ -265,5 +261,5 @@ public class TestController {
         value.put("intervalList", intervalList);
         value.put("rowLists",rowLists);
         return value;
-    }
+    }*/
 }

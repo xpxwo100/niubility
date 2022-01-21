@@ -1,5 +1,7 @@
 package combookproductcontroller.controller;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import org.bson.Document;
@@ -15,10 +17,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class MongoTestC {
@@ -106,5 +105,10 @@ public class MongoTestC {
     }
     //111111111111111111
     //2222222222
-
+    public static void main(String[] args) {
+        DateTime dateTime1 = DateUtil.offsetDay(new Date(), 14);
+        System.out.println(System.currentTimeMillis());
+        System.out.println(dateTime1.getTime());
+        System.out.println(dateTime1);
+    }
 }
