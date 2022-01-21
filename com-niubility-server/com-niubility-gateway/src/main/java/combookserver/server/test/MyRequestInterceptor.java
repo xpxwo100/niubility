@@ -1,3 +1,4 @@
+/*
 package combookserver.server.test;
 
 import feign.RequestInterceptor;
@@ -12,3 +13,4 @@ public class MyRequestInterceptor implements RequestInterceptor {
         System.out.println("MyRequestInterceptor feign 拦截器");
     }
 }
+*/

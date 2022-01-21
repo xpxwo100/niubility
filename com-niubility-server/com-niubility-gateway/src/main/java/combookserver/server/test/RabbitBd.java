@@ -3,6 +3,7 @@ package combookserver.server.test;
 import boot.util.TestM;
 import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,16 +43,24 @@ public class RabbitBd {
         CorrelationData correlationId = new CorrelationData(UUID.randomUUID().toString());
         rabbitTemplate.convertAndSend("xpx","xpx.a",t,correlationId);
     }
-    //@RabbitListener(queues = "xpx1")
+    @RabbitListener(queues = "xpx1")
     public void getMsg(Message message, TestM test, Channel channel){
-        message.getMessageProperties().getCorrelationId();
-        System.out.println("消費消息getMsg"+test);
         try {
+            if(message.getMessageProperties().getRedelivered()){
+                System.out.println("message.getMessageProperties().getRedelivered()");
+                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);//确认消息已消费
+                return;
+            }
+            System.out.println("消費消息getMsg"+test);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);//确认消息已消费
-        } catch (IOException e) {
+        } catch (Exception e) {
+            System.out.println("消費失败getMsg "+test);
             e.printStackTrace();
             try {
-                channel.basicNack(message.getMessageProperties().getDeliveryTag(), false,true);//确认消息已消费
+                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);//确认消息已消费
+                //记录数据库
+                //
+                //
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
