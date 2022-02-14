@@ -8,7 +8,8 @@
 
 package combookserver.server.config;
 
-import com.alibaba.cloud.nacos.NacosConfigProperties;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.listener.NamingEvent;
@@ -30,7 +31,7 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
     @Autowired
-    public  NacosConfigProperties nacosConfigProperties;
+    public NacosDiscoveryProperties nacosDiscoveryProperties;
     @Bean
     public  CorsWebFilter  CorsWebFilter(){
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(new PathPatternParser());
@@ -46,24 +47,29 @@ public class CorsConfig {
 
     @PostConstruct
     public  void test() {
-        String serverAddr1 = nacosConfigProperties.getServerAddr();
-        String serviceName = "com-niubility-client-controller";
-        try {
-            NamingService namingService = NacosFactory.createNamingService(serverAddr1);
+        if (nacosDiscoveryProperties == null) {
+            return;
+        }
+        if (StrUtil.isNotBlank(nacosDiscoveryProperties.getServerAddr())) {
+            String serverAddr1 = nacosDiscoveryProperties.getServerAddr();
+            String serviceName = "com-niubility-client-controller";
+            try {
+                NamingService namingService = NacosFactory.createNamingService(serverAddr1);
 
-            // 注册监听器
-            namingService.subscribe(serviceName, (event) ->
-            {
-                if (event instanceof NamingEvent) {
-                    List<Instance> list = ((NamingEvent) event).getInstances();
-                    for (Instance temp : list) {
-                        System.out.println("========" + temp);
+                // 注册监听器
+                namingService.subscribe(serviceName, (event) ->
+                {
+                    if (event instanceof NamingEvent) {
+                        List<Instance> list = ((NamingEvent) event).getInstances();
+                        for (Instance temp : list) {
+                            System.out.println("========" + temp);
+                        }
                     }
-                }
 
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }
