@@ -3,6 +3,8 @@ package combookproductcontroller.controller;
 import boot.nettyClient.NettyRpcUtil;
 import boot.nettyRpcModel.ObjectDto;
 import boot.util.R;
+import com.alibaba.nacos.client.config.utils.MD5;
+import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import combookproductcontroller.dao.TestDao;
 import combookproductcontroller.entity.TestEntity;
 import combookproductcontroller.interfaces.SchedualServiceHi;
@@ -11,13 +13,17 @@ import combookproductcontroller.util.PageUtils;
 import combookproductcontroller.util.RedisUtils;
 import combookproductcontroller.util.RedissonUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.security.DigestInputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -83,6 +89,7 @@ public class TestController {
         params.put("page", page);
         params.put("limit", limit);
         List<HashMap<String, Object>> list = testDao.selectMapList(params);
+
         HashMap<String, Object> map2 = new HashMap<String, Object>();
         map2.put("page", page);
         map2.put("limit", limit);
@@ -113,9 +120,17 @@ public class TestController {
         });
 
 
+        //密码加密
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        String code = bCryptPasswordEncoder.encode("123");
+
+        String code2 = bCryptPasswordEncoder.encode("123");
+
+        boolean matches = bCryptPasswordEncoder.matches("123", code2);
+        System.out.println(matches);
     }
 
-    @RequestMapping("/test")
+    @PostMapping("/test")
     public R test(@RequestBody HashMap<String, Object> paramMap) {
         return R.ok().put("page", paramMap);
     }

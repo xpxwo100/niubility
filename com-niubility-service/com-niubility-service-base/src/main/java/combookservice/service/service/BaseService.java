@@ -148,27 +148,27 @@ public class BaseService implements IBaseService {
         return s;
     }
 
-    public void updateData(HashMap<String, Object> map) {
-        String key = (String) map.get("key");
-        //先淘汰缓存
-        //再写数据库（这两步和原来一样）
-        //休眠1秒，再次淘汰缓存
-        Boolean s = redisUtils.del(key);
-        if (s) {
-            userMapper.insetLog(key);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    Boolean s1 = redisUtils.del(key);
-                }
-            }).start();
-        }
-    }
+//    public void updateData(HashMap<String, Object> map) {
+//        String key = (String) map.get("key");
+//        //先淘汰缓存
+//        //再写数据库（这两步和原来一样）
+//        //休眠1秒，再次淘汰缓存
+//        redisUtils.del(key);
+//        if (s) {
+//            userMapper.insetLog(key);
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    Boolean s1 = redisUtils.del(key);
+//                }
+//            }).start();
+//        }
+//    }
     @RabbitListener(queues = "xpx1")
     public void getMsg(Message message, TestM test, Channel channel){
         message.getMessageProperties().getCorrelationId();

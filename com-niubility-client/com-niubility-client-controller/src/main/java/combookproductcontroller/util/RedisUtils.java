@@ -1,6 +1,10 @@
 package combookproductcontroller.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.GeoResults;
+import org.springframework.data.geo.Point;
+import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -524,5 +528,71 @@ public class RedisUtils {
             return 0;
         }
     }
+    //------------------------------------GEO----------------------------------------
 
+    /**
+     * 增加用户位置
+     */
+    public Long addGeoLocation(String key,String username, double x, double y) {
+        try {
+            RedisGeoCommands.GeoLocation geoLocation = new RedisGeoCommands.GeoLocation(username, new Point(x, y));
+            return redisTemplate.opsForGeo().add(key, geoLocation);
+        } catch (Exception exception) {
+            throw new RuntimeException("addGeoLocation error.", exception);
+        }
+    }
+
+    /**
+     * 删除用户位置,GEO实际上放在ZSET结构的数据,因此可用ZREM删除
+     */
+    public Long deleteGeoLocation(String key,String username) {
+        try {
+            return redisTemplate.opsForZSet().remove(key, username);
+        } catch (Exception exception) {
+            throw new RuntimeException("deleteGeoLocation error.", exception);
+        }
+    }
+
+    /**
+     * 获取用户位置
+     */
+    public List<Point> getGeoLocation(String key,String username) {
+        try {
+            return redisTemplate.opsForGeo().position(key, username);
+        } catch (Exception e) {
+            throw new RuntimeException("getGetLocation error.", e);
+        }
+    }
+
+    /**
+     * 计算用户相隔距离
+     */
+    public Distance getDistance(String key,String usernameOne, String usernameTwo, RedisGeoCommands.DistanceUnit unit) {
+        try {
+            return redisTemplate.opsForGeo().distance(key, usernameOne, usernameTwo,unit);
+        } catch (Exception e) {
+            throw new RuntimeException("getDistance error.", e);
+        }
+    }
+
+    /**
+     * 获取某个用户 附近 n个距离单位m 内的附近z个用户
+     * 返回固定半径内最近一条
+     * sortAscending 正序排序 limit 为1 就可以
+     */
+    public GeoResults<RedisGeoCommands.GeoLocation<Object>> getRadius(String key,String username, int radius
+            , RedisGeoCommands.DistanceUnit unit, int limit) {
+        try {
+            Distance distance = new Distance(radius, unit);
+            RedisGeoCommands.GeoRadiusCommandArgs args =  RedisGeoCommands.GeoRadiusCommandArgs.newGeoRadiusArgs().includeDistance().includeCoordinates().sortAscending().limit(limit);
+            if (limit == -1) {
+                 args =  RedisGeoCommands.GeoRadiusCommandArgs.newGeoRadiusArgs().includeDistance().includeCoordinates().sortAscending();
+            }else{
+                args =  RedisGeoCommands.GeoRadiusCommandArgs.newGeoRadiusArgs().includeDistance().includeCoordinates().sortAscending().limit(limit);
+            }
+            return redisTemplate.opsForGeo().radius(key, username, distance, args);
+        } catch (Exception e) {
+            throw new RuntimeException("getDistance error.", e);
+        }
+    }
 }
