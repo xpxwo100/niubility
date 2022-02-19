@@ -44,7 +44,11 @@ public class PositionService {
     public Distance getDistance(String key,String usernameOne, String usernameTwo, RedisGeoCommands.DistanceUnit unit) {
         return redisUtil.getDistance(key,usernameOne, usernameTwo, unit);
     }
-
+    /**
+     * limit -1 无限制数据
+     * 获取某个用户 附近 n个距离单位m 内的附近z个用户
+     * 返回固定半径内最近一条 sortAscending 正序排序 limit 为1 就可以
+     */
     public List<MapNearby> getRadius(String key,String username, int radius, RedisGeoCommands.DistanceUnit unit, int limit) {
         GeoResults<RedisGeoCommands.GeoLocation<Object>> result = redisUtil.getRadius(key,username, radius, unit, limit);
         List<MapNearby> userNearbyList = new ArrayList<>();
@@ -58,13 +62,13 @@ public class PositionService {
     }
 
     /**
-     *   private double lon;   // 经度
-     *     private double lat;    // 纬度
+     *  根据经纬度求一定范围内的数据 由近到远排序
+     *  double lon;   // 经度
+     *  double lat;    // 纬度
      * @param key
-     * @param username
      * @param radius
      * @param unit
-     * @param limit
+     * @param limit -1 无限制数据
      * @return
      */
     public List<MapNearby> getRadiusByPoint(String key,double lon, double lat, int radius, RedisGeoCommands.DistanceUnit unit, int limit) {

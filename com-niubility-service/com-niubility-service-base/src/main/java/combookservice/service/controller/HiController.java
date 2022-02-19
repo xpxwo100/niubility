@@ -35,8 +35,8 @@ public class HiController {
         //redisUtils.set("aa","11111");
         //return redisUtils.get("aa");
 
-        //positionService.addGeoLocation("geo","我家",118.936143,24.880467);
-        List<MapNearby> geo = positionService.getRadiusByPoint("geo", 118.936143, 24.880467,504,
+        positionService.addGeoLocation("geo","我家",118.936143,24.880467);
+        List<MapNearby> geo = positionService.getRadiusByPoint("geo", 118.936143, 24.880467,3000,
                 RedisGeoCommands.DistanceUnit.METERS, -1
         );
 
