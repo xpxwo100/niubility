@@ -4,8 +4,11 @@ import boot.nettyClient.NettyRpcUtil;
 import boot.nettyRpcModel.AppRunTimeException;
 import boot.nettyRpcModel.ObjectDto;
 import combookservice.service.service.BaseService;
+import combookservice.service.util.MapNearby;
+import combookservice.service.util.PositionService;
 import combookservice.service.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +25,8 @@ public class HiController {
     Schedual2ServiceHi schedual2ServiceHi;
     @Autowired
     public RedisUtils redisUtils;
+    @Autowired
+    PositionService positionService;
     @ResponseBody
     @RequestMapping(value = "/hi",method = RequestMethod.GET)
     public Object sayHi(@RequestParam String name){
@@ -29,7 +34,14 @@ public class HiController {
 
         //redisUtils.set("aa","11111");
         //return redisUtils.get("aa");
-        return 89;
+
+        //positionService.addGeoLocation("geo","我家",118.936143,24.880467);
+        List<MapNearby> geo = positionService.getRadiusByPoint("geo", 118.936143, 24.880467,504,
+                RedisGeoCommands.DistanceUnit.METERS, -1
+        );
+
+
+        return geo;
     }
 
 
